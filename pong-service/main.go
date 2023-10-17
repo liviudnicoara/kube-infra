@@ -1,34 +1,45 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"os"
-
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
 
-	e := echo.New()
+	mux := http.NewServeMux()
 
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	user := os.Getenv("SECRET_USER")
+	pass := os.Getenv("SECRET_PASS")
 
-	e.GET("/", func(c echo.Context) error {
-		vars := os.Environ()
-		return c.HTML(http.StatusOK, "I am PONG service <br/>"+fmt.Sprintf("%+v", vars))
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+		res := `
+			I am PING service
+			---
+			SECRET_USER=` + user + `
+			SECRET_PASS=` + pass + `
+		`
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(res))
 	})
 
-	e.GET("/health", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, struct{ Status string }{Status: "OK"})
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+		res := `
+			I am PING service
+			---
+			SECRET_USER=` + user + `
+			SECRET_PASS=` + pass + `
+		`
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(res))
 	})
 
-	httpPort := os.Getenv("PORT")
-	if httpPort == "" {
-		httpPort = "8080"
+	if err := http.ListenAndServe(":8080", mux); err != nil {
+		log.Fatal(err)
 	}
-
-	e.Logger.Fatal(e.Start(":" + httpPort))
 }
