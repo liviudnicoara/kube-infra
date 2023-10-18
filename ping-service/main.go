@@ -9,6 +9,7 @@ import (
 func main() {
 	mux := http.NewServeMux()
 
+	externalAPI := os.Getenv("EXTERNAL_API")
 	user := os.Getenv("SECRET_USER")
 	pass := os.Getenv("SECRET_PASS")
 
@@ -17,6 +18,7 @@ func main() {
 		res := `
 			I am PING service
 			---
+			EXTERNAL_API=` + externalAPI + `
 			SECRET_USER=` + user + `
 			SECRET_PASS=` + pass + `
 		`
@@ -25,7 +27,7 @@ func main() {
 		w.Write([]byte(res))
 	})
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 
 		res := `
 			I am PING service
